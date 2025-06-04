@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${director.directorFullName}">Режиссёр</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <a class="btn btn-outline-secondary"
+       th:href="${fromMovie != null}
+               ? @{/movies/{id}(id=${fromMovie})}
+               : @{/movies}">
+        ← Назад
+    </a>
+
+    <div class="detail-card">
+        <h1 th:text="${director.directorFullName}">Имя режиссёра</h1>
+        <img th:if="${director.directorPhoto}" th:src="@{${director.directorPhoto}}"
+             class="detail-photo" alt="Фото режиссёра"/>
+        <p>
+            <strong>Дата рождения:</strong>
+            <span th:text="${#temporals.format(director.directorBirthDate,'dd.MM.yyyy')}"/>
+        </p>
+        <h3>Биография</h3>
+        <p th:utext="${director.directorBiography}">...</p>
+    </div>
+</div>
+</body>
+</html>

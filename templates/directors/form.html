@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${directorDto.directorId} == null ? 'Добавить режиссёра' : 'Редактировать режиссёра'">
+        Форма режиссёра
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">MoviesByMood</a>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" th:href="@{/movies}">Фильмы</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/actors}">Актёры</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/directors}">Режиссёры</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/genres}">Жанры</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/moods}">Настроения</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <button type="button" class="btn btn-outline-secondary mb-3" onclick="history.back();">
+        ← Назад
+    </button>
+
+    <h1 th:text="${directorDto.directorId} == null ? 'Добавить режиссёра' : 'Редактировать режиссёра'">
+        Заголовок
+    </h1>
+    <form th:action="@{${directorDto.directorId} == null
+                      ? '/admin/directors'
+                      : '/admin/directors/' + ${directorDto.directorId}}"
+          th:object="${directorDto}"
+          method="post"
+          enctype="multipart/form-data"
+          class="needs-validation"
+          novalidate>
+        <div class="mb-3">
+            <label for="directorFullName" class="form-label">ФИО<span class="text-danger">*</span></label>
+            <input type="text" id="directorFullName" th:field="*{directorFullName}"
+                   class="form-control" required/>
+            <div class="invalid-feedback"
+                 th:if="${#fields.hasErrors('directorFullName')}"
+                 th:errors="*{directorFullName}"></div>
+            <div class="invalid-feedback">Пожалуйста, заполните ФИО.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="directorBirthDate" class="form-label">Дата рождения</label>
+            <input type="date" id="directorBirthDate" th:field="*{directorBirthDate}"
+                   class="form-control"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="directorBiography" class="form-label">Биография</label>
+            <textarea id="directorBiography" th:field="*{directorBiography}"
+                      class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="photo" class="form-label">Фото (необязательно)</label>
+            <input type="file" id="photo" name="photo" accept="image/*"
+                   class="form-control"/>
+            <div class="form-text">Если не загрузить — будет изображение по умолчанию.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a th:href="@{/admin/directors}" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>
+
+<script>
+    (() => {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${movieDto.movieId} == null ? 'Добавить фильм' : 'Редактировать фильм'">
+        Форма фильма
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/">MoviesByMood</a>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" th:href="@{/movies}">Фильмы</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/actors}">Актёры</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/directors}">Режиссёры</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/genres}">Жанры</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/moods}">Настроения</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container py-4">
+    <a th:href="@{/admin/movies}" class="btn btn-outline-secondary mb-3">← Назад к списку фильмов</a>
+
+    <h1 th:text="${movieDto.movieId} == null ? 'Добавить фильм' : 'Редактировать фильм'"></h1>
+
+    <form th:action="@{${movieDto.movieId} == null ? '/admin/movies' : '/admin/movies/' + ${movieDto.movieId}}"
+          th:object="${movieDto}"
+          method="post"
+          enctype="multipart/form-data"
+          class="needs-validation"
+          novalidate>
+
+        <div class="mb-3">
+            <label for="movieTitle" class="form-label">
+                Название<span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   id="movieTitle"
+                   th:field="*{movieTitle}"
+                   class="form-control"
+                   placeholder="Название фильма"
+                   required/>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('movieTitle')}"
+                 th:errors="*{movieTitle}"></div>
+            <div class="invalid-feedback">Пожалуйста, введите название фильма.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="movieDescription" class="form-label">Описание</label>
+            <textarea id="movieDescription"
+                      th:field="*{movieDescription}"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Краткое описание"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="movieReleaseDate" class="form-label">Дата выхода</label>
+            <input type="date"
+                   id="movieReleaseDate"
+                   th:field="*{movieReleaseDate}"
+                   class="form-control"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="movieDuration" class="form-label">Длительность (минуты)</label>
+            <input type="number"
+                   id="movieDuration"
+                   th:field="*{movieDuration}"
+                   class="form-control"
+                   min="1"
+                   placeholder="120"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="moviePoster" class="form-label">Постер фильма</label>
+            <input type="file"
+                   id="moviePoster"
+                   name="moviePoster"
+                   accept="image/*"
+                   class="form-control"/>
+            <div class="form-text">Необязательно. PNG/JPG, не более 5 MB.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                <label for="genreSearchInForm" class="form-label">Жанры</label>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/genres/new}">
+                    + Добавить жанр
+                </a>
+            </div>
+            <input type="text"
+                   id="genreSearchInForm"
+                   class="form-control mb-2"
+                   placeholder="Начните вводить жанр..."
+                   onkeyup="filterGenresInForm()"/>
+            <select multiple
+                    id="genres"
+                    th:field="*{genreIds}"
+                    class="form-select"
+                    size="6">
+                <option th:each="g : ${allGenres}"
+                        th:value="${g.genreId}"
+                        th:text="${g.genreName}">Жанр</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                <label for="actorSearchInForm" class="form-label">Актёры</label>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/actors/new}">
+                    + Добавить актёра
+                </a>
+            </div>
+            <input type="text"
+                   id="actorSearchInForm"
+                   class="form-control mb-2"
+                   placeholder="Начните вводить имя или фамилию..."
+                   onkeyup="filterActorsInForm()"/>
+            <select multiple
+                    id="actors"
+                    th:field="*{actorIds}"
+                    class="form-select"
+                    size="6">
+                <option th:each="a : ${allActors}"
+                        th:value="${a.actorId}"
+                        th:text="${a.actorFullName}">Имя актёра</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                <label for="directorSearchInForm" class="form-label">Режиссёры</label>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/directors/new}">
+                    + Добавить режиссёра
+                </a>
+            </div>
+            <input type="text"
+                   id="directorSearchInForm"
+                   class="form-control mb-2"
+                   placeholder="Начните вводить имя или фамилию..."
+                   onkeyup="filterDirectorsInForm()"/>
+            <select multiple
+                    id="directors"
+                    th:field="*{directorIds}"
+                    class="form-select"
+                    size="6">
+                <option th:each="d : ${allDirectors}"
+                        th:value="${d.directorId}"
+                        th:text="${d.directorFullName}">Имя режиссёра</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                <label for="moodSearchInForm" class="form-label">Настроения</label>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/moods/new}">
+                    + Добавить настроение
+                </a>
+            </div>
+            <input type="text"
+                   id="moodSearchInForm"
+                   class="form-control mb-2"
+                   placeholder="Начните вводить название..."
+                   onkeyup="filterMoodsInForm()"/>
+            <select multiple
+                    id="moods"
+                    th:field="*{moodIds}"
+                    class="form-select"
+                    size="6">
+                <option th:each="m : ${allMoods}"
+                        th:value="${m.moodId}"
+                        th:text="${m.moodName}">Название настроения</option>
+            </select>
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary"
+                th:text="${movieDto.movieId} == null ? 'Добавить' : 'Сохранить'">
+            Сохранить
+        </button>
+        <a th:href="@{/admin/movies}" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+
+<script th:inline="javascript">
+    (() => {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+
+<script th:inline="javascript">
+    function filterGenresInForm() {
+        const filter = document.getElementById("genreSearchInForm").value.toLowerCase();
+        [...document.getElementById("genres").options].forEach(opt => {
+            const txt = (opt.textContent || opt.innerText).toLowerCase();
+            opt.hidden = filter !== "" && !txt.includes(filter);
+        });
+    }
+    function filterActorsInForm() {
+        const filter = document.getElementById("actorSearchInForm").value.toLowerCase();
+        [...document.getElementById("actors").options].forEach(opt => {
+            const txt = (opt.textContent || opt.innerText).toLowerCase();
+            opt.hidden = filter !== "" && !txt.includes(filter);
+        });
+    }
+    function filterDirectorsInForm() {
+        const filter = document.getElementById("directorSearchInForm").value.toLowerCase();
+        [...document.getElementById("directors").options].forEach(opt => {
+            const txt = (opt.textContent || opt.innerText).toLowerCase();
+            opt.hidden = filter !== "" && !txt.includes(filter);
+        });
+    }
+    function filterMoodsInForm() {
+        const filter = document.getElementById("moodSearchInForm").value.toLowerCase();
+        [...document.getElementById("moods").options].forEach(opt => {
+            const txt = (opt.textContent || opt.innerText).toLowerCase();
+            opt.hidden = filter !== "" && !txt.includes(filter);
+        });
+    }
+</script>
+</body>
+</html>

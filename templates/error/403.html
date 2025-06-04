@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>403 — Доступ запрещён</title>
+</head>
+<body>
+<h1>403 — Доступ запрещён</h1>
+<p th:text="${message}">У вас нет прав на просмотр этой страницы.</p>
+<a href="javascript:history.back()" style="text-decoration: none; color: blue;">
+    Вернуться назад
+</a>
+</body>
+</html>
